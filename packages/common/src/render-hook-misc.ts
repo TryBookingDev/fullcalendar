@@ -33,3 +33,10 @@ export interface DayHeaderContentArg extends DateMeta {
   [otherProp: string]: any
 }
 export type DayHeaderMountArg = MountArg<DayHeaderContentArg>
+
+
+export interface CustomDayCellContentArg {
+  date: Date
+  dateProfile: any
+  todayRange: any
+}

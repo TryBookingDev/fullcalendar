@@ -18,7 +18,7 @@ import {
   PluginDef,
   ViewComponentType,
   SpecificViewContentArg, SpecificViewMountArg,
-  ClassNamesGenerator, CustomContentGenerator, DidMountHandler, WillUnmountHandler,
+  ClassNamesGenerator, CustomContentGenerator, CallbackGenerator, DidMountHandler, WillUnmountHandler,
   NowIndicatorContentArg, NowIndicatorMountArg,
   WeekNumberContentArg, WeekNumberMountArg,
   SlotLaneContentArg, SlotLaneMountArg,
@@ -35,7 +35,7 @@ import {
   WeekNumberCalculation,
   FormatterInput,
   ToolbarInput, CustomButtonInput, ButtonIconsInput, ButtonTextCompoundInput,
-  EventContentArg, EventMountArg,
+  EventContentArg, EventMountArg, CustomDayCellContentArg,
   DatesSetArg,
   EventApi, EventAddArg, EventChangeArg, EventRemoveArg
 } from './api-type-deps'
@@ -213,7 +213,24 @@ export const BASE_OPTION_REFINERS = {
   titleFormat: identity as Identity<FormatterInput>, // DONT parse just yet. we need to inject titleSeparator
 
   // only used by list-view, but languages define the value, so we need it in base options
-  noEventsText: String
+  noEventsText: String,
+
+  //TRYB extended
+  customDayCellContent: identity as Identity<CustomContentGenerator<CustomDayCellContentArg>>,
+  customDayCellContentClassNames: identity as Identity<ClassNamesGenerator<CustomDayCellContentArg>>,
+  customDayCellContentDidMount: identity as Identity<DidMountHandler<any>>,
+  customDayCellContentWillUnmount: identity as Identity<DidMountHandler<any>>,
+  customDayCellParentContentClassName: String,
+  hideEvents: Boolean,
+  hideMoreContentLink: Boolean,
+  customDayCellHeaderContent: identity as Identity<CustomContentGenerator<CustomDayCellContentArg>>,
+  customDayCellHeaderContentClassNames: identity as Identity<ClassNamesGenerator<CustomDayCellContentArg>>,
+  customDayCellHeaderContentDidMount: identity as Identity<DidMountHandler<any>>,
+  customDayCellHeaderContentWillUnmount: identity as Identity<DidMountHandler<any>>,
+  customDayCellParentHeaderContentClassName: String,
+
+  dayCellMainContainerClassNamesCallback: identity as Identity<CallbackGenerator<CustomDayCellContentArg>>,
+  calendarContainerClassNames: identity as Identity<ClassNamesGenerator<any>>,
 }
 
 type BuiltInBaseOptionRefiners = typeof BASE_OPTION_REFINERS

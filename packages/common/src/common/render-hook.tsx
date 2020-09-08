@@ -75,6 +75,7 @@ export interface ObjCustomContent {
 export type CustomContent = ComponentChildren | ObjCustomContent
 export type CustomContentGenerator<HookProps> = CustomContent | ((hookProps: HookProps) => CustomContent)
 export type DefaultContentGenerator<HookProps> = (hookProps: HookProps) => ComponentChildren // TODO: rename to be about function, not default. use in above type
+export type CallbackGenerator<HookProps> = any | ((hookProps: HookProps) => any)
 
 // for forcing rerender of components that use the ContentHook
 export const CustomContentRenderContext = createContext<number>(0)

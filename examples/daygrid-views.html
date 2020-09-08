@@ -3,6 +3,7 @@
 <head>
 <meta charset='utf-8' />
 <link href='../packages/bundle/main.css' rel='stylesheet' />
+<link href='./css/daygrid-views.css' rel='stylesheet' />
 <script src='../packages/bundle/main.js'></script>
 <script>
 
@@ -16,9 +17,12 @@
         right: 'dayGridMonth,dayGridWeek,dayGridDay'
       },
       initialDate: '2020-09-12',
+    //  height: 'auto',
       navLinks: true, // can click day/week names to navigate views
       editable: true,
-      dayMaxEvents: true, // allow "more" link when too many events
+      selectable: true,
+      dayMaxEvents: 2,
+      //dayMaxEvents: true, // allow "more" link when too many events
       events: [
         {
           title: 'All Day Event',
@@ -26,7 +30,22 @@
         },
         {
           title: 'Long Event',
-          start: '2020-09-07',
+          start: '2020-09-10',
+          end: '2020-09-10'
+        },
+        {
+          title: 'Long Event 2',
+          start: '2020-09-10',
+          end: '2020-09-10'
+        },
+        {
+          title: 'Long Event 3',
+          start: '2020-09-10',
+          end: '2020-09-10'
+        },
+        {
+          title: 'Long Event 3',
+          start: '2020-09-10',
           end: '2020-09-10'
         },
         {
@@ -74,7 +93,37 @@
           url: 'http://google.com/',
           start: '2020-09-28'
         }
-      ]
+      ],
+      hideMoreContentLink: false,
+      hideEvents: false,
+      select: arg => {
+        console.log('select', arg);
+        alert('selected');
+      },
+      customDayCellParentContentClassName: 'test',
+
+      // xdayCellStyle: { border: '5px solid white' },
+      // xdayGridDayTopStyle: { display: 'flex', 'flex-direction': 'row', 'justify-content': 'center', 'align-content': 'center' },
+      // xdayGridDayFrameStyle: { display: 'flex', 'flex-direction': 'column', 'justify-content': 'center', 'align-content': 'center' },
+     // customDayCellContentClassNames: ['custom-daycell-view'],
+      // xdayCellChildContainerClassName: 'mobile-daycell-container',
+     // xdayCellMainContainerClassNames: ['mobile-daycell-main-container'],
+      customDayCellContent : (arg) => {
+
+        const eventContainerEl = document.createElement('div');
+
+        const currentDate = new Date();
+        if (arg.date.getDay() == currentDate.getDay() && arg.date.getMonth() == currentDate.getMonth()) {
+          eventContainerEl.setAttribute('id', "customDayCellTodayContentMobile");
+        } else {
+          eventContainerEl.setAttribute('style', "width: 5px; height: 5px; background-color: #F6B413; border-radius: 100%; flex: 0 0 5px");
+          eventContainerEl.setAttribute('id', "customDayCellContentId");
+        }
+
+        const arrayOfDomNodes = [ eventContainerEl ]
+        return { domNodes: arrayOfDomNodes }
+
+      }
     });
 
     calendar.render();

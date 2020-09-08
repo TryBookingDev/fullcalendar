@@ -21,11 +21,13 @@ import {
   Dictionary,
   MountArg,
   Fragment,
+  CustomDayCellContentArg,
 } from '@fullcalendar/common'
 import { TableSeg } from './TableSeg'
 
 
 export interface TableCellProps {
+  moreXPopover?: any
   date: DateMarker
   dateProfile: DateProfile
   extraHookProps?: Dictionary
@@ -84,10 +86,23 @@ export type MoreLinkMountArg = MountArg<MoreLinkContentArg>
 
 const DEFAULT_WEEK_NUM_FORMAT = createFormatter({ week: 'narrow' })
 
+const formatDate = (date) => {
+  let month = '' + (date.getMonth() + 1),
+    day = '' + date.getDate(),
+    year = date.getFullYear();
+
+  if (month.length < 2)
+    month = '0' + month;
+  if (day.length < 2)
+    day = '0' + day;
+
+  return [year, month, day].join('-');
+}
 
 export class TableCell extends DateComponent<TableCellProps> {
 
   private rootEl: HTMLElement
+  private morePopupParentEl: HTMLElement;
 
 
   render() {
@@ -105,6 +120,12 @@ export class TableCell extends DateComponent<TableCellProps> {
       ? { 'data-navlink': buildNavLinkData(date, 'week'), tabIndex: 0 }
       : {}
 
+    let customDayCellContentArg: CustomDayCellContentArg = {
+      date:props.date,
+      dateProfile:props.dateProfile,
+      todayRange:props.todayRange
+    }
+
     return (
       <DayCellRoot
         date={date}
@@ -117,11 +138,15 @@ export class TableCell extends DateComponent<TableCellProps> {
         {(rootElRef, classNames, rootDataAttrs, isDisabled) => (
           <td
             ref={rootElRef}
-            className={[ 'fc-daygrid-day' ].concat(classNames, props.extraClassNames || []).join(' ')}
+            className={[ 'fc-daygrid-day' ].concat(classNames, props.extraClassNames || [],
+              options.dayCellMainContainerClassNamesCallback ? options.dayCellMainContainerClassNamesCallback(customDayCellContentArg) as string[] : []).join(' ')}
             {...rootDataAttrs}
             {...props.extraDataAttrs}
           >
-            <div className='fc-daygrid-day-frame fc-scrollgrid-sync-inner' ref={props.innerElRef /* different from hook system! RENAME */}>
+            <div className='fc-daygrid-day-frame fc-scrollgrid-sync-inner' data-date={formatDate(props.date)} ref={this.handleInnerRefEl /* different from hook system! RENAME */}>
+
+              {(options as any).showPopover === formatDate(props.date) && props.moreXPopover}
+
               {props.showWeekNumber &&
                 <WeekNumberRoot date={date} defaultFormat={DEFAULT_WEEK_NUM_FORMAT}>
                   {(rootElRef, classNames, innerElRef, innerContent) => (
@@ -135,6 +160,31 @@ export class TableCell extends DateComponent<TableCellProps> {
                   )}
                 </WeekNumberRoot>
               }
+
+              { options.customDayCellParentHeaderContentClassName &&
+              <div
+                className={ options.customDayCellParentHeaderContentClassName || '' }
+                ref={props.fgContentElRef}
+              >
+                {options.customDayCellHeaderContent &&
+                <RenderHook<CustomDayCellContentArg>
+                  hookProps={customDayCellContentArg}
+                  classNames={options.customDayCellHeaderContentClassNames}
+                  content={options.customDayCellHeaderContent}
+                  didMount={options.customDayCellHeaderContentDidMount}
+                  willUnmount={options.customDayCellHeaderContentWillUnmount}
+                >
+                  {(rootElRef, classNames, innerElRef, innerContent) => (
+                    <div ref={rootElRef}
+                         className={['fc-daygrid-custom-event-header-content'].concat(classNames).join(' ')}>
+                      {innerContent}
+                    </div>
+                  )}
+                </RenderHook>
+                }
+              </div>
+              }
+
               {!isDisabled &&
                 <TableCellTop
                   date={date}
@@ -150,9 +200,33 @@ export class TableCell extends DateComponent<TableCellProps> {
                 ref={props.fgContentElRef}
                 style={{ paddingBottom: props.fgPaddingBottom }}
               >
-                {props.fgContent}
+                {!options.hideEvents && props.fgContent}
+                {options.customDayCellParentContentClassName &&
+                <div
+                  className={options.customDayCellParentContentClassName || ''}
+                  ref={props.fgContentElRef}
+                >
+                  {options.customDayCellContent &&
+                  <RenderHook<CustomDayCellContentArg>
+                    hookProps={customDayCellContentArg}
+                    classNames={options.customDayCellContentClassNames}
+                    content={options.customDayCellContent}
+                    didMount={options.customDayCellContentDidMount}
+                    willUnmount={options.customDayCellContentWillUnmount}
+                  >
+                    {(rootElRef, classNames, innerElRef, innerContent) => (
+                      <div ref={rootElRef} className={['fc-daygrid-custom-event-content'].concat(classNames).join(' ')}>
+                        {innerContent}
+                      </div>
+                    )}
+                  </RenderHook>
+                  }
+                </div>
+                }
+
                 {Boolean(props.moreCnt) &&
-                  <div className='fc-daygrid-day-bottom' style={{ marginTop: props.moreMarginTop }}>
+                  <div className='fc-daygrid-day-bottom' style={{ marginTop: props.moreMarginTop, position: 'relative' }}>
+
                     <RenderHook<MoreLinkContentArg> // needed?
                       hookProps={hookProps}
                       classNames={options.moreLinkClassNames}
@@ -161,11 +235,14 @@ export class TableCell extends DateComponent<TableCellProps> {
                       didMount={options.moreLinkDidMount}
                       willUnmount={options.moreLinkWillUnmount}
                     >
-                      {(rootElRef, classNames, innerElRef, innerContent) => (
-                        <a onClick={this.handleMoreLinkClick} ref={rootElRef} className={[ 'fc-daygrid-more-link' ].concat(classNames).join(' ')}>
+                      {(rootElRef, classNames, innerElRef, innerContent) => {
+
+                        return !options.hideMoreContentLink ? (<a onClick={e => this.handleMoreLinkClick(e, formatDate(props.date)) } ref={rootElRef}
+                           className={['fc-daygrid-more-link'].concat(classNames).join(' ')}>
                           {innerContent}
-                        </a>
-                      )}
+                        </a>) : (<div className='empty-more-content-link'></div>);
+
+                      }}
                     </RenderHook>
                   </div>
                 }
@@ -187,9 +264,18 @@ export class TableCell extends DateComponent<TableCellProps> {
     setRef(this.props.elRef, el)
   }
 
+  handleInnerRefEl = (el: HTMLElement) => {
+    this.morePopupParentEl = el
+    setRef(this.props.innerElRef, el)
+  }
 
-  handleMoreLinkClick = (ev: VUIEvent) => {
-    let { props } = this
+
+  handleMoreLinkClick = (ev: VUIEvent, date?: string) => {
+    let { props } = this;
+    let { options } = this.context;
+
+    (options as any).showPopover = date;
+    (options as any).morePopupParentEl = this.morePopupParentEl;
 
     if (props.onMoreClick) {
       let allSegs = props.segsByEachCol
@@ -251,7 +337,7 @@ class TableCellTop extends BaseComponent<TableCellTopProps> {
         {(innerElRef, innerContent) => (
           (innerContent || props.forceDayTop) &&
             <div className='fc-daygrid-day-top' ref={innerElRef}>
-              <a className='fc-daygrid-day-number' {...navLinkAttrs}>
+              <a className='fc-daygrid-day-number' {...navLinkAttrs}  data-date={formatDate(props.date)}>
                 {innerContent || <Fragment>&nbsp;</Fragment>}
               </a>
             </div>

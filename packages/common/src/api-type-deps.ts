@@ -17,7 +17,7 @@ export { LocaleSingularArg, LocaleInput } from './datelib/locale'
 export { OverlapFunc, ConstraintInput, AllowFunc } from './structs/constraint'
 export { PluginDef } from './plugin-system-struct'
 export { ViewComponentType, SpecificViewContentArg, SpecificViewMountArg } from './structs/view-config'
-export { ClassNamesGenerator, CustomContentGenerator, DidMountHandler, WillUnmountHandler } from './common/render-hook'
+export { ClassNamesGenerator, CustomContentGenerator, CallbackGenerator, DidMountHandler, WillUnmountHandler } from './common/render-hook'
 export { NowIndicatorContentArg, NowIndicatorMountArg } from './common/NowIndicatorRoot'
 export { WeekNumberContentArg, WeekNumberMountArg } from './common/WeekNumberRoot'
 export {
@@ -25,7 +25,8 @@ export {
   SlotLabelContentArg, SlotLabelMountArg,
   AllDayContentArg, AllDayMountArg,
   DayHeaderContentArg,
-  DayHeaderMountArg
+  DayHeaderMountArg,
+  CustomDayCellContentArg
 } from './render-hook-misc'
 export { DayCellContentArg, DayCellMountArg } from './common/DayCellRoot'
 export { ViewContentArg, ViewMountArg } from './common/ViewRoot'
