@@ -107,6 +107,10 @@ export class Table extends DateComponent<TableProps, TableState> {
       expandRows ? '' : 'fc-daygrid-body-natural' // will height of one row depend on the others?
     ]
 
+
+
+
+
     return (
       <div className={classNames.join(' ')} ref={this.handleRootEl} style={{
         // these props are important to give this wrapper correct dimensions for interactions
@@ -115,7 +119,29 @@ export class Table extends DateComponent<TableProps, TableState> {
         minWidth: props.tableMinWidth
       }}>
         <NowTimer unit='day'>
-          {(nowDate: DateMarker, todayRange: DateRange) => (
+          {(nowDate: DateMarker, todayRange: DateRange) => {
+
+            const morePopOver = (!props.forPrint && morePopoverState && morePopoverState.currentFgEventSegs === props.fgEventSegs) && // clear popover on event mod
+              <MorePopover
+
+
+                date={morePopoverState.date}
+                dateProfile={dateProfile}
+                segs={morePopoverState.allSegs}
+                alignmentEl={morePopoverState.dayEl}
+                topAlignmentEl={rowCnt === 1 ? props.headerAlignElRef.current : null}
+                onCloseClick={this.handleMorePopoverClose}
+                selectedInstanceId={props.eventSelection}
+                hiddenInstances={ // yuck
+                  (props.eventDrag ? props.eventDrag.affectedInstances : null) ||
+                  (props.eventResize ? props.eventResize.affectedInstances : null) ||
+                  {}
+                }
+                todayRange={todayRange}
+              />;
+
+
+            return (
             <Fragment>
               <table
                 className='fc-scrollgrid-sync-table'
@@ -127,7 +153,14 @@ export class Table extends DateComponent<TableProps, TableState> {
               >
                 {props.colGroupNode}
                 <tbody>
-                  {props.cells.map((cells, row) => (
+                  {props.cells.map((cells, row) => {
+
+                    cells = cells.map(a => {
+                      (a as any).morePopover = morePopOver;
+                      return a;
+                    });
+
+                    return (
                     <TableRow
                       ref={this.rowRefs.createRef(row)}
                       key={
@@ -155,28 +188,12 @@ export class Table extends DateComponent<TableProps, TableState> {
                       buildMoreLinkText={buildMoreLinkText}
                       onMoreClick={this.handleMoreLinkClick}
                     />
-                  ))}
+                  )})}
                 </tbody>
               </table>
-              {(!props.forPrint && morePopoverState && morePopoverState.currentFgEventSegs === props.fgEventSegs) && // clear popover on event mod
-                <MorePopover
-                  date={morePopoverState.date}
-                  dateProfile={dateProfile}
-                  segs={morePopoverState.allSegs}
-                  alignmentEl={morePopoverState.dayEl}
-                  topAlignmentEl={rowCnt === 1 ? props.headerAlignElRef.current : null}
-                  onCloseClick={this.handleMorePopoverClose}
-                  selectedInstanceId={props.eventSelection}
-                  hiddenInstances={ // yuck
-                    (props.eventDrag ? props.eventDrag.affectedInstances : null) ||
-                    (props.eventResize ? props.eventResize.affectedInstances : null) ||
-                    {}
-                  }
-                  todayRange={todayRange}
-                />
-              }
+
             </Fragment>
-          )}
+          )}}
         </NowTimer>
       </div>
     )

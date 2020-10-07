@@ -1,4 +1,20 @@
 
+v5.3.2 (2020-09-06)
+-------------------
+
+fix: more-link sometimes incorrectly positioned behind events (#5790)
+
+
+v5.3.1 (2020-09-04)
+-------------------
+
+bugfixes:
+- error with stickyScrollings.updateSize in certain 3rd-party environments (#5601)
+- rrule exclusion doesn't work while adding the 'Z' char for RRule datetimes (#5726)
+- more links sometimes hidden behind events with dayMaxEventRows (#5771)
+- wrong version text in dist js files (#5778)
+
+
 v5.3.0 (2020-08-12)
 -------------------
 

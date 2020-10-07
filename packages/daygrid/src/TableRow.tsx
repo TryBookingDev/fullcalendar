@@ -29,6 +29,7 @@ import { hasListItemDisplay } from './event-rendering'
 
 
 export interface TableRowProps {
+  morePopOver?: any
   cells: TableCellModel[]
   renderIntro?: () => VNode
   businessHourSegs: TableSeg[]
@@ -124,6 +125,7 @@ export class TableRow extends DateComponent<TableRowProps, TableRowState> {
 
           return (
             <TableCell
+              moreXPopover={(cell as any).morePopover}
               key={cell.key}
               elRef={this.cellElRefs.createRef(cell.key)}
               innerElRef={this.frameElRefs.createRef(cell.key) /* FF <td> problem, but okay to use for left/right. TODO: rename prop */}

@@ -1,4 +1,5 @@
 import { config, elementClosest, Emitter, PointerDragEvent } from '@fullcalendar/common'
+import {DateSelectArg} from "../../../common/src/calendar-utils";
 
 config.touchMouseIgnoreWait = 500
 
@@ -44,7 +45,10 @@ export class PointerDragging {
 
   constructor(containerEl: EventTarget) {
     this.containerEl = containerEl
-    this.emitter = new Emitter()
+    this.emitter = new Emitter();
+
+    (config as any).trybCalendarPointerDraggingEmitter = this.emitter;
+
     containerEl.addEventListener('mousedown', this.handleMouseDown as EventListener)
     containerEl.addEventListener('touchstart', this.handleTouchStart as EventListener, { passive: true })
     listenerCreated()
@@ -135,6 +139,19 @@ export class PointerDragging {
   // Touch
   // ----------------------------------------------------------------------------------------------------
 
+  debounceTouch = (targetEl) => {
+    return this.debounce(() =>  {
+      const dateStr = targetEl.getAttribute('data-date');
+      if (dateStr) {
+        const date = new Date(dateStr);
+        this.emitter.trigger('select', {
+          start: date,
+          end: date
+        } as DateSelectArg);
+      }
+    }, 100)()
+  }
+
   handleTouchStart = (ev: TouchEvent) => {
     if (this.tryStart(ev)) {
       this.isTouchDragging = true
@@ -175,6 +192,8 @@ export class PointerDragging {
     if (this.isDragging) { // done to guard against touchend followed by touchcancel
       let targetEl = ev.target as HTMLElement
 
+      this.debounceTouch(targetEl)
+
       targetEl.removeEventListener('touchmove', this.handleTouchMove)
       targetEl.removeEventListener('touchend', this.handleTouchEnd)
       targetEl.removeEventListener('touchcancel', this.handleTouchEnd)
@@ -199,6 +218,22 @@ export class PointerDragging {
     }
   }
 
+
+ // Returns a function, that, as long as it continues to be invoked, will not
+ // be triggered. The function will be called after it stops being called for
+ // `wait` milliseconds.
+  debounce = (func, wait) => {
+    //let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout((config as any).trybCalendarDebounceTimeout);
+        func(...args);
+      };
+
+      clearTimeout((config as any).trybCalendarDebounceTimeout);
+      (config as any).trybCalendarDebounceTimeout = setTimeout(later, wait);
+    };
+  }
 
   // Scrolling that simulates pointermoves
   // ----------------------------------------------------------------------------------------------------

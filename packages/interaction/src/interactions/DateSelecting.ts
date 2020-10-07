@@ -2,7 +2,7 @@ import {
   compareNumbers, enableCursor, disableCursor, DateComponent, Hit,
   DateSpan, PointerDragEvent, dateSelectionJoinTransformer,
   Interaction, InteractionSettings, interactionSettingsToStore,
-  triggerDateSelect
+  triggerDateSelect, config
 } from '@fullcalendar/common'
 import { HitDragging } from './HitDragging'
 import { FeaturefulElementDragging } from '../dnd/FeaturefulElementDragging'
@@ -18,6 +18,7 @@ export class DateSelecting extends Interaction {
   dragging: FeaturefulElementDragging
   hitDragging: HitDragging
   dragSelection: DateSpan | null = null
+  intervalForTouchEmitter: any = null
 
   constructor(settings: InteractionSettings) {
     super(settings)
@@ -34,10 +35,27 @@ export class DateSelecting extends Interaction {
     hitDragging.emitter.on('dragstart', this.handleDragStart)
     hitDragging.emitter.on('hitupdate', this.handleHitUpdate)
     hitDragging.emitter.on('pointerup', this.handlePointerUp)
+
+    this.intervalForTouchEmitter = setInterval(() => {
+      const pointerDraggingEmitter = (config as any).trybCalendarPointerDraggingEmitter;
+      if (pointerDraggingEmitter) {
+        pointerDraggingEmitter.on('select', this.handleTouchSelect)
+        clearInterval(this.intervalForTouchEmitter);
+      }
+    }, 200);
+
   }
 
   destroy() {
     this.dragging.destroy()
+  }
+
+  handleTouchSelect = (ev) => {
+    let { component } = this
+    component.context.emitter.trigger('select', {
+      ...ev,
+      view: component.context.viewApi || component.context.calendarApi.view
+    })
   }
 
   handlePointerDown = (ev: PointerDragEvent) => {

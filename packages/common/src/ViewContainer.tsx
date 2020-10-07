@@ -34,7 +34,8 @@ export class ViewContainer extends BaseComponent<ViewContainerProps, ViewContain
       (aspectRatio || props.liquid || props.height)
         ? 'fc-view-harness-active' // harness controls the height
         : 'fc-view-harness-passive' // let the view do the height
-    ]
+    ].concat(this.context.options.calendarContainerClassNames as string[] || []);
+
     let height: CssDimValue = ''
     let paddingBottom: CssDimValue = ''
 

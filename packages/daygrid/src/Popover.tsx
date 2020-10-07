@@ -14,7 +14,7 @@ export interface PopoverProps {
   children?: ComponentChildren
 }
 
-const PADDING_FROM_VIEWPORT = 10
+// const PADDING_FROM_VIEWPORT = 10
 const SCROLL_DEBOUNCE = 10
 
 
@@ -35,7 +35,7 @@ export class Popover extends BaseComponent<PopoverProps> {
     )
 
     return (
-      <div className={classNames.join(' ')} {...props.extraAttrs} ref={this.handleRootEl}>
+      <div className={classNames.join(' ')} {...props.extraAttrs} ref={this.handleRootEl} style={ {position: 'absolute', top: '-60px'}}>
         <div className={'fc-popover-header ' + theme.getClass('popoverHeader')}>
           <span className='fc-popover-title'>
             {props.title}
@@ -99,39 +99,57 @@ export class Popover extends BaseComponent<PopoverProps> {
 
   // TODO: adjust on window resize
 
-
-  /*
-  NOTE: the popover is position:fixed, so coordinates are relative to the viewport
-  NOTE: the PARENT calls this as well, on window resize. we would have wanted to use the repositioner,
-        but need to ensure that all other components have updated size first (for alignmentEl)
-  */
   private updateSize() {
-    let { alignmentEl, topAlignmentEl } = this.props
+    let { options } = this.context;
+    let morePopupParentEl = (options as any).morePopupParentEl;
     let { rootEl } = this
 
     if (!rootEl) {
       return // not sure why this was null, but we shouldn't let external components call updateSize() anyway
     }
 
-    let dims = rootEl.getBoundingClientRect() // only used for width,height
-    let alignment = alignmentEl.getBoundingClientRect()
+    let width = '0';
 
-    let top = topAlignmentEl ? topAlignmentEl.getBoundingClientRect().top : alignment.top
-    top = Math.min(top, window.innerHeight - dims.height - PADDING_FROM_VIEWPORT)
-    top = Math.max(top, PADDING_FROM_VIEWPORT)
-
-    let left: number
-
-    if (this.context.isRtl) {
-      left = alignment.right - dims.width
-    } else {
-      left = alignment.left
+    if (morePopupParentEl) {
+      let morePopupParentElRect = morePopupParentEl.getBoundingClientRect();
+      width = morePopupParentElRect ? `${parseInt(morePopupParentElRect.width)}px` : '0';
     }
-
-    left = Math.min(left, window.innerWidth - dims.width - PADDING_FROM_VIEWPORT)
-    left = Math.max(left, PADDING_FROM_VIEWPORT)
-
-    applyStyle(rootEl, { top, left })
+    applyStyle(rootEl, { top: '0', left: '0', width: width })
   }
+
+
+  /*
+  NOTE: the popover is position:fixed, so coordinates are relative to the viewport
+  NOTE: the PARENT calls this as well, on window resize. we would have wanted to use the repositioner,
+        but need to ensure that all other components have updated size first (for alignmentEl)
+  */
+  // private updateSizeOrig() {
+  //   let { alignmentEl, topAlignmentEl } = this.props
+  //   let { rootEl } = this
+  //
+  //   if (!rootEl) {
+  //     return // not sure why this was null, but we shouldn't let external components call updateSize() anyway
+  //   }
+  //
+  //   let dims = rootEl.getBoundingClientRect() // only used for width,height
+  //   let alignment = alignmentEl.getBoundingClientRect()
+  //
+  //   let top = topAlignmentEl ? topAlignmentEl.getBoundingClientRect().top : alignment.top
+  //   top = Math.min(top, window.innerHeight - dims.height - PADDING_FROM_VIEWPORT)
+  //   top = Math.max(top, PADDING_FROM_VIEWPORT)
+  //
+  //   let left: number
+  //
+  //   if (this.context.isRtl) {
+  //     left = alignment.right - dims.width
+  //   } else {
+  //     left = alignment.left
+  //   }
+  //
+  //   left = Math.min(left, window.innerWidth - dims.width - PADDING_FROM_VIEWPORT)
+  //   left = Math.max(left, PADDING_FROM_VIEWPORT)
+  //
+  //   applyStyle(rootEl, { top, left })
+  // }
 
 }
