@@ -145,7 +145,7 @@ export class TableCell extends DateComponent<TableCellProps> {
           >
             <div className='fc-daygrid-day-frame fc-scrollgrid-sync-inner' data-date={formatDate(props.date)} ref={this.handleInnerRefEl /* different from hook system! RENAME */}>
 
-              {(options as any).showPopover === formatDate(props.date) && props.moreXPopover}
+              {/*{(options as any).showPopover === formatDate(props.date) && props.moreXPopover}*/}
 
               {props.showWeekNumber &&
                 <WeekNumberRoot date={date} defaultFormat={DEFAULT_WEEK_NUM_FORMAT}>
