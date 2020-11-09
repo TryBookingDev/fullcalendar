@@ -109,12 +109,18 @@ export class Popover extends BaseComponent<PopoverProps> {
     }
 
     let width = '0';
+    let left = '0';
+    let top = '0';
 
     if (morePopupParentEl) {
       let morePopupParentElRect = morePopupParentEl.getBoundingClientRect();
-      width = morePopupParentElRect ? `${parseInt(morePopupParentElRect.width)}px` : '0';
+      if (morePopupParentElRect) {
+        width = `${parseInt(morePopupParentElRect.width)}px`;
+        left = `${parseInt(morePopupParentElRect.left)}px`;
+        top = `${parseInt(morePopupParentElRect.top)}px`;
+      }
     }
-    applyStyle(rootEl, { top: '0', left: '0', width: width })
+    applyStyle(rootEl, { top: top, left: left, width: width })
   }
 
 
